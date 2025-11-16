@@ -4,7 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
 
 const PesananSaya = () => {
-  const userId = 1;
+  const user =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user"))
+      : null;
+
+  const userId = user?.id;
 
   const { data, isLoading } = useQuery({
     queryKey: ["pesananSaya"],
@@ -17,12 +22,14 @@ const PesananSaya = () => {
     },
   });
 
+  const pesanan = data || [];
+
   if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="flex flex-col gap-4">
-      {data.length > 0 ? (
-        data.map((product) => (
+      {pesanan.length > 0 ? (
+        pesanan.map((product) => (
           <Pesanan
             product={product.products}
             token={product.token}

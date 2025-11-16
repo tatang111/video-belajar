@@ -5,7 +5,12 @@ import Kelas from "./Kelas";
 import { supabase } from "@/lib/supabase-client";
 
 const KelasSaya = () => {
-  const userId = 1;
+  const user =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user"))
+      : null;
+
+  const userId = user?.id;
 
   const { data, isLoading } = useQuery({
     queryKey: ["kelasSaya"],
@@ -20,7 +25,7 @@ const KelasSaya = () => {
     },
   });
 
-  const filteredData = data?.filter((d) => d.is_paid === true);
+  const filteredData = (data || []).filter((d) => d.is_paid === true);
 
   if (isLoading) return <p>Loading...</p>;
 

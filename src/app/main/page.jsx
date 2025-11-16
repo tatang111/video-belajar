@@ -6,11 +6,21 @@ import ProfilSaya from "@/components/shared/ProfilSaya";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User, BookOpen, ShoppingBag } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") || "profil";
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    const user = stored ? JSON.parse(stored) : null;
+
+    if (!user?.email) {
+      router.push("/login");
+    }
+  }, []);
 
   const handleTabChange = (value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -19,7 +29,11 @@ export default function Page() {
   };
 
   return (
-    <Tabs value={tab} onValueChange={handleTabChange} className="w-full bg-[#FFFCF0] px-20">
+    <Tabs
+      value={tab}
+      onValueChange={handleTabChange}
+      className="w-full bg-[#FFFCF0] px-20"
+    >
       <div className="flex   border-gray-200 rounded-xl overflow-hidden">
         {/* Sidebar */}
         <div className="w-1/3 bg-[#FFFCF0]  border-gray-200 p-6">

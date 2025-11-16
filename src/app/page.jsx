@@ -3,6 +3,7 @@
 import CardProduct from "@/components/shared/Card";
 import { supabase } from "@/lib/supabase-client";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const fetchVideos = async () => {
@@ -18,7 +19,15 @@ export default function Home() {
     queryFn: fetchVideos,
   });
 
-  
+  const router = useRouter()
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    const user = stored ? JSON.parse(stored) : null;
+
+    if (!user?.email) {
+      router.push("/login");
+    }
+  }, []);
 
   if (error)
     return (

@@ -1,4 +1,14 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname.includes("login") || pathname.includes("register")) {
+    return null;
+  }
+
   const linkSections = [
     {
       title: "Quick Links",
@@ -54,8 +64,7 @@ export default function Footer() {
         </div>
       </div>
       <p className="py-4 text-center text-sm md:text-base text-gray-500/80">
-        Copyright 2025 © All
-        Right Reserved.
+        Copyright 2025 © All Right Reserved.
       </p>
     </div>
   );

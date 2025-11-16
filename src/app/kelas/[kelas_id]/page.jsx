@@ -11,12 +11,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
 
 export default function CoursePlayerPage({ params }) {
-  const videoId = use(params);
+  const resolvedParams = use(params); 
   const router = useRouter();
   const searchParams = useSearchParams();
   const videoParams = searchParams.get("video") || "1";
-  const productId = videoId.kelas_id;
-  const userId = 1;
+  const productId = Number(resolvedParams.kelas_id);
+  const user =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user"))
+      : null;
+
+  const userId = user?.id;
 
   const handleTabChange = (value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -25,16 +30,18 @@ export default function CoursePlayerPage({ params }) {
   };
 
   const { data: userVideos } = useQuery({
-    queryKey: ["user_video"],
+    queryKey: ["user_video", userId, productId],
     queryFn: async () => {
       const { data } = await supabase
         .from("user_videos")
         .select("*")
         .eq("user_id", userId)
-        .eq("video_id", productId).single();
+        .eq("video_id", productId)
+        .single();
 
       return data;
     },
+    enabled: !!userId && !!productId,
   });
 
   const { data } = useQuery({
@@ -50,7 +57,7 @@ export default function CoursePlayerPage({ params }) {
   });
 
   let videoNow;
-  if (videoParams == 1 || "") {
+  if (videoParams == 1) {
     videoNow = data?.video;
   } else if (videoParams == 2) {
     videoNow = data?.video_2;
@@ -66,11 +73,15 @@ export default function CoursePlayerPage({ params }) {
     { id: 2, title: `${data?.title} #3` },
   ];
 
-  useEffect(() => {
-    if (userVideos?.is_paid === false) {
-      router.push("/")
-    }
-  }, [userVideos])
+ useEffect(() => {
+  if (userVideos && userVideos.is_paid === false) {
+    router.push("/");
+  }
+
+  if (userVideos === null) {
+    router.push("/");
+  }
+}, [userVideos]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col px-30">

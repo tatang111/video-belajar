@@ -4,15 +4,31 @@ import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { use } from "react";
+import { use, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
 import { toast } from "sonner";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function CourseDetail({ params }) {
-  const userId = 1;
+  const user =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user"))
+      : null;
+
+  const userId = user?.id;
   const productId = use(params);
+
+  const router = useRouter()
+  useEffect(() => {
+      const stored = localStorage.getItem("user");
+      const user = stored ? JSON.parse(stored) : null;
+  
+      if (!user?.email) {
+        router.push("/login");
+      }
+    }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ["productDetails"],
@@ -27,73 +43,72 @@ export default function CourseDetail({ params }) {
   });
 
   const handleClick = async () => {
-  try {
-    const { data: existingRecord } = await supabase
-      .from("user_videos")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("video_id", data?.id)
-      .single(); 
+    try {
+      const { data: existingRecord } = await supabase
+        .from("user_videos")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("video_id", data?.id)
+        .single();
 
-    if (existingRecord) {
-      if (existingRecord.is_paid) {
-        toast.error("You already paid this course");
-        return;
-      } else {
-        window.snap.pay(existingRecord.token, {
-          onSuccess: async (result) => {
-            await supabase
-              .from("user_videos")
-              .update({ is_paid: true })
-              .eq("user_id", userId)
-              .eq("video_id", data.id);
+      if (existingRecord) {
+        if (existingRecord.is_paid) {
+          toast.error("You already paid this course");
+          return;
+        } else {
+          window.snap.pay(existingRecord.token, {
+            onSuccess: async (result) => {
+              await supabase
+                .from("user_videos")
+                .update({ is_paid: true })
+                .eq("user_id", userId)
+                .eq("video_id", data.id);
 
-            toast.success("Pembayaran berhasil!");
-          },
-        });
+              toast.success("Pembayaran berhasil!");
+            },
+          });
+          return;
+        }
+      }
+
+      const dataRequest = {
+        id: data?.id,
+        productName: data?.title,
+        price: data?.price,
+      };
+
+      const response = await axios.post("/api/tokenizer", dataRequest);
+
+      const { error } = await supabase.from("user_videos").insert({
+        user_id: userId,
+        video_id: data?.id,
+        is_paid: false,
+        token: response.data.token,
+        created_at: new Date(),
+      });
+
+      if (error) {
+        console.error("Failed to create user_video record:", error);
+        toast.error("Terjadi kesalahan saat membuat transaksi");
         return;
       }
+
+      window.snap.pay(response.data.token, {
+        onSuccess: async (result) => {
+          await supabase
+            .from("user_videos")
+            .update({ is_paid: true })
+            .eq("user_id", userId)
+            .eq("video_id", data.id);
+
+          toast.success("Pembayaran berhasil!");
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Terjadi kesalahan saat memproses pembayaran");
     }
-
-    const dataRequest = {
-      id: data?.id,
-      productName: data?.title,
-      price: data?.price,
-    };
-
-    const response = await axios.post("/api/tokenizer", dataRequest);
-
-    const { error } = await supabase.from("user_videos").insert({
-      user_id: userId,
-      video_id: data?.id,
-      is_paid: false,
-      token: response.data.token,
-      created_at: new Date(),
-    });
-
-    if (error) {
-      console.error("Failed to create user_video record:", error);
-      toast.error("Terjadi kesalahan saat membuat transaksi");
-      return;
-    }
-
-    window.snap.pay(response.data.token, {
-      onSuccess: async (result) => {
-        await supabase
-          .from("user_videos")
-          .update({ is_paid: true })
-          .eq("user_id", userId)
-          .eq("video_id", data.id);
-
-        toast.success("Pembayaran berhasil!");
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    toast.error("Terjadi kesalahan saat memproses pembayaran");
-  }
-};
-
+  };
 
   if (isLoading)
     return (
