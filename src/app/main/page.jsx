@@ -6,9 +6,17 @@ import ProfilSaya from "@/components/shared/ProfilSaya";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User, BookOpen, ShoppingBag } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
 export default function Page() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <PageContent />
+    </Suspense>
+  );
+}
+
+function PageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") || "profil";
@@ -34,18 +42,20 @@ export default function Page() {
       onValueChange={handleTabChange}
       className="w-full bg-[#FFFCF0] px-20"
     >
-      <div className="flex   border-gray-200 rounded-xl overflow-hidden">
+      <div className="flex border-gray-200 rounded-xl overflow-hidden">
+        
         {/* Sidebar */}
-        <div className="w-1/3 bg-[#FFFCF0]  border-gray-200 p-6">
+        <div className="w-1/3 bg-[#FFFCF0] border-gray-200 p-6">
           <h1 className="text-lg font-semibold text-gray-800">Ubah Profil</h1>
           <p className="text-sm text-gray-500 mt-1">Ubah data diri Anda</p>
 
           <div className="mt-6 bg-white border border-gray-200 rounded-xl p-4">
             <TabsList className="flex flex-col gap-2 bg-transparent p-0 h-30">
+              
               {/* Profil Saya */}
               <TabsTrigger
                 value="profil"
-                className={`flex items-center  gap-2 text-sm justify-start py-2.5 px-4 rounded-lg transition-all ${
+                className={`flex items-center gap-2 text-sm justify-start py-2.5 px-4 rounded-lg transition-all ${
                   tab === "profil"
                     ? "bg-yellow-50 text-yellow-600 border border-yellow-400 font-medium shadow-sm"
                     : "text-gray-400 hover:bg-gray-50"
@@ -53,9 +63,7 @@ export default function Page() {
               >
                 <User
                   size={16}
-                  className={
-                    tab === "profil" ? "text-yellow-600" : "text-gray-400"
-                  }
+                  className={tab === "profil" ? "text-yellow-600" : "text-gray-400"}
                 />
                 Profil Saya
               </TabsTrigger>
@@ -71,9 +79,7 @@ export default function Page() {
               >
                 <BookOpen
                   size={16}
-                  className={
-                    tab === "kelas" ? "text-yellow-600" : "text-gray-400"
-                  }
+                  className={tab === "kelas" ? "text-yellow-600" : "text-gray-400"}
                 />
                 Kelas Saya
               </TabsTrigger>
@@ -89,9 +95,7 @@ export default function Page() {
               >
                 <ShoppingBag
                   size={16}
-                  className={
-                    tab === "pesanan" ? "text-yellow-600" : "text-gray-400"
-                  }
+                  className={tab === "pesanan" ? "text-yellow-600" : "text-gray-400"}
                 />
                 Pesanan Saya
               </TabsTrigger>
