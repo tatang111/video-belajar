@@ -113,7 +113,7 @@ const ProfilSaya = () => {
           type="number"
           placeholder="Nomor telepon"
           className="w-35"
-          defaultValue={data?.hp}
+          defaultValue={data?.nomor}
         />
       </div>
 
