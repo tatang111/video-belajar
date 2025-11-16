@@ -64,7 +64,7 @@ export default function Daftar() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-screen bg-cover bg-center bg-[url('/assets/background.png')]">
       <div className="w-105 bg-white text-gray-500 max-w-105 mx-4 md:p-6 p-4 text-left text-sm rounded-xl shadow-[0px_0px_10px_0px] shadow-black/10">
         <h2 className="text-2xl font-semibold mb-2 text-center text-gray-800">
           Pendaftaran Akun
