@@ -40,7 +40,7 @@ export default function Footer() {
             alt="dummyLogoColored"
           />
           <p className="max-w-[410px] mt-6">
-            Gali Potensi Anda Melalui Pembelajaran Video di hariesok.id!
+            Gali Potensi Anda Melalui Pembelajaran Video di video-belajar-tau.vercel.app
           </p>
           <p>Jl. Usman Effendi No. 50 Lowokwaru, Malang</p>
         </div>
