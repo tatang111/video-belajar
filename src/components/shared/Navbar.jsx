@@ -23,9 +23,13 @@ const Navbar = () => {
   }
 
   const handleLogout = () => {
+      try {
     localStorage.removeItem("user");
     toast.success("Berhasil keluar");
     router.push("/login");
+  } catch (e) {
+    toast.error("Gagal logout");
+  }
   };
 
   const handleDeleteAccount = async () => {
